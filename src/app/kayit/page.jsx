@@ -15,7 +15,7 @@ export default function KayitPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
     setError('')
 
@@ -42,7 +42,9 @@ export default function KayitPage() {
       <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-4 py-8">
         <div className="w-full max-w-md rounded-2xl border border-dark-lighter bg-dark-light p-6 text-center sm:p-8">
           <p className="text-base font-semibold text-primary sm:text-lg">Kayıt başarılı!</p>
-          <p className="mt-2 text-xs text-gray-400 sm:text-sm">Giriş sayfasına yönlendiriliyorsunuz...</p>
+          <p className="mt-2 text-xs text-gray-400 sm:text-sm">
+            Giriş sayfasına yönlendiriliyorsunuz...
+          </p>
         </div>
       </div>
     )
@@ -182,3 +184,4 @@ export default function KayitPage() {
     </div>
   )
 }
+

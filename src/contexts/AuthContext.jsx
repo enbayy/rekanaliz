@@ -6,24 +6,15 @@ import {
   useState,
   useCallback,
   useEffect,
-  type ReactNode,
 } from 'react'
-import type { Student } from '@/lib/types'
 import { getStudent, MOCK_STUDENTS } from '@/lib/mock-data'
 
 const STORAGE_KEY = 'rekanaliz_student_id'
 
-interface AuthContextType {
-  user: Student | null
-  login: (no: string, password: string) => boolean
-  logout: () => void
-  isReady: boolean
-}
+const AuthContext = createContext(null)
 
-const AuthContext = createContext<AuthContextType | null>(null)
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<Student | null>(null)
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null)
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
@@ -35,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsReady(true)
   }, [])
 
-  const login = useCallback((no: string, password: string): boolean => {
+  const login = useCallback((no, password) => {
     const student = MOCK_STUDENTS.find((s) => s.no === no)
     if (!student) return false
     if (password !== '1') return false
@@ -61,3 +52,4 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used within AuthProvider')
   return ctx
 }
+

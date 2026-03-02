@@ -26,7 +26,7 @@ export default function HomePage() {
     }
   }, [isReady, user])
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e) => {
     e.preventDefault()
     setHasSearched(true)
   }
@@ -246,3 +246,4 @@ export default function HomePage() {
     </div>
   )
 }
+

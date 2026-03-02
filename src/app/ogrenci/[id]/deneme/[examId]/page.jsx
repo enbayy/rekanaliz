@@ -14,8 +14,8 @@ import DenemeSonucContent from '@/components/DenemeSonucContent'
 
 export default function OgrenciDenemeSonucPage() {
   const params = useParams()
-  const studentId = params.id as string
-  const examId = params.examId as string
+  const studentId = params.id
+  const examId = params.examId
 
   const student = getStudent(studentId)
   const exam = getExam(examId)
@@ -55,3 +55,4 @@ export default function OgrenciDenemeSonucPage() {
     />
   )
 }
+

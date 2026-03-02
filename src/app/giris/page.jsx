@@ -13,7 +13,7 @@ export default function GirisPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
     setError('')
     // Şimdilik şart yok: direkt ana sayfaya geç (mock kullanıcı ile giriş sayılsın)
@@ -96,7 +96,7 @@ export default function GirisPage() {
 
         <p className="mt-4 text-center text-xs text-gray-500 sm:mt-6 sm:text-sm">
           Hesabınız yok mu?{' '}
-          <Link href="/kayit" className="font-medium text-primary hover:underline" tabIndex={0}>
+          <Link href="/kayit" className="font-medium text-primary hover:underline">
             Kayıt olun
           </Link>
         </p>
@@ -104,3 +104,4 @@ export default function GirisPage() {
     </div>
   )
 }
+

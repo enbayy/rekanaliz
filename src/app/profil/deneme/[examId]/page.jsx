@@ -6,7 +6,6 @@ import { useAuth } from '@/contexts/AuthContext'
 import {
   getExam,
   getExamResult,
-  getStudent,
   getRanking,
   getExamQuestionOrderForBooklet,
   getSoruIstatistik,
@@ -15,7 +14,7 @@ import DenemeSonucContent from '@/components/DenemeSonucContent'
 
 export default function ProfilDenemePage() {
   const params = useParams()
-  const examId = params.examId as string
+  const examId = params.examId
   const { user } = useAuth()
 
   if (!user) {
@@ -62,3 +61,4 @@ export default function ProfilDenemePage() {
     />
   )
 }
+
