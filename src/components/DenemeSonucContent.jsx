@@ -62,12 +62,13 @@ function DersBarXAxisTick(props) {
   if (!payload?.value) return null
   const [line1, line2] = dersLabelSatirlari(payload.value)
   return (
-    <g transform={`translate(${x},${y})`}>
+    // Y değerini biraz aşağı alarak bar ile yazı arasında boşluk bırak
+    <g transform={`translate(${x},${y + 8})`}>
       <text textAnchor="middle" fill={fill} fontSize={fontSize} dy={line2 ? 0 : 4}>
         {line1}
       </text>
       {line2 && (
-        <text textAnchor="middle" fill={fill} fontSize={fontSize} dy={fontSize + 6}>
+        <text textAnchor="middle" fill={fill} fontSize={fontSize} dy={fontSize + 8}>
           {line2}
         </text>
       )}
@@ -221,6 +222,28 @@ export default function DenemeSonucContent({
                 return acc
               }, {}) || {}
 
+            // Ders bazlı doğru/yanlış/boş dağılımına göre her dersin soru kutucuklarına durum ata
+            const dersBazliDurum = {}
+            if (result && result.dersBazli) {
+              KITAPCIK_DERSLER.forEach(({ ad, soruSayisi }) => {
+                const d = result.dersBazli[ad]
+                const dogru = Math.min(Number(d?.dogru || 0), soruSayisi)
+                const yanlis = Math.min(Number(d?.yanlis || 0), soruSayisi - dogru)
+                const bos = Math.min(
+                  Number(d?.bos || 0),
+                  soruSayisi - dogru - yanlis
+                )
+
+                const arr = Array(soruSayisi).fill(null)
+                let idx = 0
+                for (let i = 0; i < dogru; i += 1, idx += 1) arr[idx] = 'dogru'
+                for (let i = 0; i < yanlis; i += 1, idx += 1) arr[idx] = 'yanlis'
+                for (let i = 0; i < bos; i += 1, idx += 1) arr[idx] = 'bos'
+
+                dersBazliDurum[ad] = arr
+              })
+            }
+
             const firstDersWithQuestion = KITAPCIK_DERSLER.find((d) => {
               const dersAd = d.ad
               return kitapcikSorulariByDers[dersAd] && kitapcikSorulariByDers[dersAd].length > 0
@@ -233,6 +256,9 @@ export default function DenemeSonucContent({
               aktifDers && kitapcikSorulariByDers[aktifDers]
                 ? kitapcikSorulariByDers[aktifDers][aktifIndex] || null
                 : null
+
+            const aktifDersRenk =
+              (aktifSoru && DERS_RENKLERI[aktifSoru.ders]) || '#3b82f6'
 
             return (
               <div className="grid gap-6 lg:grid-cols-[minmax(0,2.1fr)_minmax(0,1.2fr)]">
@@ -260,8 +286,14 @@ export default function DenemeSonucContent({
                       <div className="space-y-4 sm:space-y-5">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary ring-1 ring-primary/40 sm:text-xs">
-                              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+                            <span
+                              className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ring-1 ring-primary/40 sm:text-xs"
+                              style={{ color: aktifDersRenk }}
+                            >
+                              <span
+                                className="inline-flex h-1.5 w-1.5 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)]"
+                                style={{ backgroundColor: aktifDersRenk }}
+                              />
                               {aktifSoru.ders}
                             </span>
                             <span className="inline-flex items-center gap-1 rounded-full bg-slate-900/70 px-2.5 py-1 text-[11px] font-medium text-gray-200 ring-1 ring-slate-700/80 sm:text-xs">
@@ -338,7 +370,10 @@ export default function DenemeSonucContent({
                                 className="h-2 w-2 rounded-full"
                                 style={{ backgroundColor: renk }}
                               />
-                              <span className="text-xs font-medium text-gray-100 sm:text-sm">
+                              <span
+                                className="text-xs font-medium sm:text-sm"
+                                style={{ color: renk }}
+                              >
                                 {ders}
                               </span>
                               <span className="text-[11px] text-gray-400 sm:text-xs">
@@ -373,14 +408,8 @@ export default function DenemeSonucContent({
                               <div className="grid grid-cols-8 gap-1.5 sm:grid-cols-10 sm:gap-2">
                                 {Array.from({ length: soruSayisi }).map((_, index) => {
                                   const soru = sorular[index] || null
-
-                                  const ogrenciCevap =
-                                    soru && cevaplar && typeof soru.bookletSira !== 'undefined'
-                                      ? cevaplar[soru.bookletSira]
-                                      : null
-                                  const isBos = soru && !ogrenciCevap
-                                  const isDogru =
-                                    soru && !isBos && ogrenciCevap === soru.dogruCevap
+                                  const durumForDers = dersBazliDurum[ders] || []
+                                  const durum = durumForDers[index] || null
 
                                   let bg = 'bg-slate-900/80'
                                   let border = 'border-slate-700'
@@ -390,15 +419,15 @@ export default function DenemeSonucContent({
                                     bg = 'bg-slate-900/40'
                                     border = 'border-slate-800'
                                     text = 'text-gray-500'
-                                  } else if (isBos) {
+                                  } else if (durum === 'bos') {
                                     bg = 'bg-amber-500/10'
                                     border = 'border-amber-500/60'
                                     text = 'text-amber-100'
-                                  } else if (isDogru) {
+                                  } else if (durum === 'dogru') {
                                     bg = 'bg-emerald-500/10'
                                     border = 'border-emerald-500/70'
                                     text = 'text-emerald-100'
-                                  } else {
+                                  } else if (durum === 'yanlis') {
                                     bg = 'bg-rose-500/10'
                                     border = 'border-rose-500/70'
                                     text = 'text-rose-100'
@@ -592,21 +621,38 @@ export default function DenemeSonucContent({
               </p>
 
               {(() => {
-                const dersBazliData = Object.entries(result.dersBazli).map(
-                  ([ders, d]) => ({
-                    ders,
-                    net: d.net,
-                    dogru: d.dogru,
-                    yanlis: d.yanlis,
-                    bos: d.bos,
-                  })
+                const dersSoruMap = Object.fromEntries(
+                  KITAPCIK_DERSLER.map((d) => [d.ad, d.soruSayisi])
                 )
+
+                const dersBazliData = KITAPCIK_DERSLER.map(({ ad }) => {
+                  const d = (result.dersBazli && result.dersBazli[ad]) || {}
+                  const dogru = Number(d.dogru || 0)
+                  const yanlis = Number(d.yanlis || 0)
+                  const bos = Number(d.bos || 0)
+
+                  const net =
+                    typeof d.net !== 'undefined' && d.net !== null
+                      ? Number(d.net)
+                      : dogru - yanlis / 4
+
+                  return {
+                    ders: ad,
+                    net,
+                    dogru,
+                    yanlis,
+                    bos,
+                    soruSayisi: dersSoruMap[ad],
+                  }
+                })
+
                 return (
                   <div className="mb-6 h-64 sm:h-72 lg:h-80">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={dersBazliData}
-                        margin={{ top: 12, right: 12, left: 0, bottom: 56 }}
+                        margin={{ top: 12, right: 8, left: 0, bottom: 56 }}
+                        barCategoryGap="45%"
                       >
                         <XAxis
                           dataKey="ders"
@@ -633,10 +679,20 @@ export default function DenemeSonucContent({
                             borderRadius: '12px',
                           }}
                           labelStyle={{ color: '#e5e7eb' }}
-                          formatter={(value) => [value, '']}
+                          formatter={(value, _name, props) => {
+                            const soruSayisi = props?.payload?.soruSayisi
+                            return soruSayisi
+                              ? [`${value} net (Toplam ${soruSayisi} soru)`, '']
+                              : [value, '']
+                          }}
                           labelFormatter={(label) => `Ders: ${label}`}
                         />
-                        <Bar dataKey="net" name="Net" radius={[6, 6, 0, 0]}>
+                        <Bar
+                          dataKey="net"
+                          name="Net"
+                          radius={[6, 6, 0, 0]}
+                          maxBarSize={22}
+                        >
                           {dersBazliData.map((entry, index) => (
                             <Cell
                               // eslint-disable-next-line react/no-array-index-key
@@ -652,17 +708,19 @@ export default function DenemeSonucContent({
               })()}
 
               <div className="overflow-x-auto rounded-xl border border-dark-lighter">
-                <table className="w-full min-w-[300px] table-fixed text-left text-xs sm:text-sm">
+                <table className="w-full min-w-[320px] table-fixed text-left text-xs sm:text-sm">
                   <colgroup>
-                    <col style={{ width: '38%' }} />
-                    <col style={{ width: '15.5%' }} />
-                    <col style={{ width: '15.5%' }} />
-                    <col style={{ width: '15.5%' }} />
-                    <col style={{ width: '15.5%' }} />
+                    <col style={{ width: '34%' }} />
+                    <col style={{ width: '13%' }} />
+                    <col style={{ width: '13%' }} />
+                    <col style={{ width: '13%' }} />
+                    <col style={{ width: '13%' }} />
+                    <col style={{ width: '14%' }} />
                   </colgroup>
                   <thead>
                     <tr className="border-b border-dark-lighter bg-dark/50 text-gray-400">
                       <th className="px-3 py-3 text-left font-semibold sm:px-4">Ders</th>
+                      <th className="px-2 py-3 text-center font-semibold sm:px-3">Soru</th>
                       <th className="px-2 py-3 text-center font-semibold sm:px-3">Net</th>
                       <th className="px-2 py-3 text-center font-semibold sm:px-3">Doğru</th>
                       <th className="px-2 py-3 text-center font-semibold sm:px-3">Yanlış</th>
@@ -671,6 +729,7 @@ export default function DenemeSonucContent({
                   </thead>
                   <tbody>
                     {(() => {
+                      let genelToplamSoru = 0
                       let genelToplamNet = 0
                       let genelToplamDogru = 0
                       let genelToplamYanlis = 0
@@ -697,9 +756,11 @@ export default function DenemeSonucContent({
                         const toplamDogru = toplamFromKonular?.dogru ?? d.dogru ?? 0
                         const toplamYanlis = toplamFromKonular?.yanlis ?? d.yanlis ?? 0
                         const toplamBos = toplamFromKonular?.bos ?? d.bos ?? 0
+                        const planlananSoruSayisi =
+                          KITAPCIK_DERSLER.find((x) => x.ad === ders)?.soruSayisi ?? null
                         const toplamSoru =
-                          toplamFromKonular?.toplam ??
-                          toplamDogru + toplamYanlis + toplamBos
+                          planlananSoruSayisi ??
+                          (toplamFromKonular?.toplam ?? toplamDogru + toplamYanlis + toplamBos)
 
                         const net =
                           typeof d.net !== 'undefined'
@@ -709,6 +770,7 @@ export default function DenemeSonucContent({
                         const isClickable = konuBazli.length > 0
 
                         // Genel toplamlar
+                        genelToplamSoru += Number(toplamSoru) || 0
                         genelToplamNet += Number(net) || 0
                         genelToplamDogru += Number(toplamDogru) || 0
                         genelToplamYanlis += Number(toplamYanlis) || 0
@@ -751,6 +813,9 @@ export default function DenemeSonucContent({
                                     </span>
                                   )}
                                 </div>
+                              </td>
+                              <td className="px-2 py-3 text-center text-gray-200 sm:px-3">
+                                {toplamSoru}
                               </td>
                               <td className="px-2 py-3 text-center text-primary sm:px-3">
                                 {Number(net).toFixed(2)}
@@ -856,6 +921,9 @@ export default function DenemeSonucContent({
                           <tr className="bg-gradient-to-r from-primary/20 via-emerald-500/15 to-amber-500/20 text-gray-100 border-t border-primary/40">
                             <td className="px-3 py-3 font-semibold uppercase tracking-wide sm:px-4">
                               Genel Toplam
+                            </td>
+                            <td className="px-2 py-3 text-center font-semibold text-gray-100 sm:px-3">
+                              {genelToplamSoru}
                             </td>
                             <td className="px-2 py-3 text-center font-semibold text-primary sm:px-3">
                               {genelToplamNet.toFixed(2)}
