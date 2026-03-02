@@ -12,70 +12,103 @@ export const DERS_RENKLERI = {
   'Fen Bilimleri': '#22c55e', // alternatif isim
 }
 
-export const MOCK_QUESTIONS = [
-  {
-    id: 'q1',
-    questionId: 'Q1',
-    metin: 'Aşağıdaki cümlelerin hangisinde yazım yanlışı vardır?',
-    siklar: ['A) Yanlış seçenek', 'B) Doğru seçenek', 'C) Diğer', 'D) Diğer', 'E) Diğer'],
-    dogruCevap: 'B',
-    ders: 'Türkçe',
-  },
-  {
-    id: 'q2',
-    questionId: 'Q2',
-    metin: '2. soru metni buraya gelecek. Şıklar aşağıda.',
-    siklar: ['A) Birinci şık', 'B) İkinci şık', 'C) Üçüncü şık', 'D) Dördüncü şık', 'E) Beşinci şık'],
-    dogruCevap: 'C',
-    ders: 'Sosyal Bilgiler',
-  },
-  {
-    id: 'q3',
-    questionId: 'Q3',
-    metin: 'Matematik sorusu: x + 2 = 5 ise x kaçtır?',
-    siklar: ['A) 1', 'B) 2', 'C) 3', 'D) 4', 'E) 5'],
-    dogruCevap: 'C',
-    ders: 'Matematik',
-  },
-  {
-    id: 'q4',
-    questionId: 'Q4',
-    metin: "Fen bilgisi sorusu: Suyun kaynama noktası kaç °C'dir?",
-    siklar: ['A) 90', 'B) 100', 'C) 110', 'D) 120', 'E) 80'],
-    dogruCevap: 'B',
-    ders: 'Fen Bilgisi',
-  },
-  {
-    id: 'q5',
-    questionId: 'Q5',
-    metin: 'Beşinci soru metni. A kitapçığında 5., B kitapçığında 1. sırada.',
-    siklar: ['A) Şık 1', 'B) Şık 2', 'C) Şık 3', 'D) Şık 4', 'E) Şık 5'],
-    dogruCevap: 'A',
-    ders: 'İngilizce',
-  },
-]
+// Kitapçık ekranındaki sabit ders-soru adetlerine göre soru havuzunu üretelim
+const DERS_SORU_SAYILARI = {
+  Türkçe: 20,
+  'Sosyal Bilgiler': 10,
+  'Din Kültürü': 10,
+  İngilizce: 10,
+  Matematik: 20,
+  'Fen Bilgisi': 20,
+}
+
+const GENERATED_QUESTIONS = []
+
+;(function generateQuestionsForAllDersler() {
+  let globalIndex = 1
+
+  Object.entries(DERS_SORU_SAYILARI).forEach(([ders, adet]) => {
+    for (let i = 1; i <= adet; i += 1) {
+      const questionId = `Q${globalIndex}`
+      GENERATED_QUESTIONS.push({
+        id: `q${globalIndex}`,
+        questionId,
+        metin: `${ders} ${i}. soru metni (görsel placeholder).`,
+        siklar: [
+          'A) Şık 1',
+          'B) Şık 2',
+          'C) Şık 3',
+          'D) Şık 4',
+          'E) Şık 5',
+        ],
+        dogruCevap: 'A',
+        ders,
+      })
+
+      globalIndex += 1
+    }
+  })
+})()
+
+export const MOCK_QUESTIONS = GENERATED_QUESTIONS
 
 export const MOCK_SCHOOLS = [
   { id: '1', ad: 'Merkez Anadolu Lisesi' },
   { id: '2', ad: 'Şehit Mehmet Lisesi' },
 ]
 
+// Not: Gerçek sistemde bu bilgiler CSV / veritabanından gelecektir.
+// Burada sadece TC + okul numarasına göre giriş akışını simüle ediyoruz.
 export const MOCK_STUDENTS = [
-  { id: '1', schoolId: '1', no: '101', adSoyad: 'Ayşe Yılmaz', sinif: '12-A' },
-  { id: '2', schoolId: '1', no: '205', adSoyad: 'Mehmet Kaya', sinif: '12-B' },
-  { id: '3', schoolId: '1', no: '312', adSoyad: 'Elif Demir', sinif: '11-A' },
-  { id: '4', schoolId: '1', no: '108', adSoyad: 'Zeynep Arslan', sinif: '12-A' },
-  { id: '5', schoolId: '1', no: '210', adSoyad: 'Ali Özkan', sinif: '12-B' },
+  {
+    id: '1',
+    schoolId: '1',
+    no: '101', // okul numarası
+    tc: '10000000001',
+    adSoyad: 'Ayşe Yılmaz',
+    sinif: '12-A',
+  },
+  {
+    id: '2',
+    schoolId: '1',
+    no: '205',
+    tc: '10000000002',
+    adSoyad: 'Mehmet Kaya',
+    sinif: '12-B',
+  },
+  {
+    id: '3',
+    schoolId: '1',
+    no: '312',
+    tc: '10000000003',
+    adSoyad: 'Elif Demir',
+    sinif: '11-A',
+  },
+  {
+    id: '4',
+    schoolId: '1',
+    no: '108',
+    tc: '10000000004',
+    adSoyad: 'Zeynep Arslan',
+    sinif: '12-A',
+  },
+  {
+    id: '5',
+    schoolId: '1',
+    no: '210',
+    tc: '10000000005',
+    adSoyad: 'Ali Özkan',
+    sinif: '12-B',
+  },
 ]
 
-/** Deneme 1: A'da sıra Q1,Q2,Q3,Q4,Q5; B'de sıra Q5,Q1,Q2,Q3,Q4 (örnek) */
-const exam1Questions = [
-  { examId: '1', questionId: 'Q1', orderA: 1, orderB: 2 },
-  { examId: '1', questionId: 'Q2', orderA: 2, orderB: 3 },
-  { examId: '1', questionId: 'Q3', orderA: 3, orderB: 4 },
-  { examId: '1', questionId: 'Q4', orderA: 4, orderB: 5 },
-  { examId: '1', questionId: 'Q5', orderA: 5, orderB: 1 },
-]
+/** Deneme 1: kitapçık A ve B'de 90 soruluk sabit sıra (optik örnekleri için yeterli) */
+const exam1Questions = Array.from({ length: GENERATED_QUESTIONS.length }).map((_, index) => ({
+  examId: '1',
+  questionId: `Q${index + 1}`,
+  orderA: index + 1,
+  orderB: index + 1,
+}))
 
 export const MOCK_EXAMS = [
   {
@@ -107,12 +140,62 @@ export const MOCK_EXAM_RESULTS = [
     yanlis: 1,
     bos: 0,
     dersBazli: {
-      Türkçe: { net: 2, dogru: 2, yanlis: 0, bos: 0 },
-      'Sosyal Bilgiler': { net: 0, dogru: 0, yanlis: 0, bos: 0 },
-      'Din Kültürü': { net: 0, dogru: 0, yanlis: 0, bos: 0 },
-      İngilizce: { net: 0, dogru: 0, yanlis: 0, bos: 0 },
-      Matematik: { net: 1, dogru: 1, yanlis: 0, bos: 0 },
-      'Fen Bilgisi': { net: 1, dogru: 1, yanlis: 0, bos: 0 },
+      Türkçe: {
+        net: 2,
+        dogru: 2,
+        yanlis: 0,
+        bos: 0,
+        konuBazli: [
+          { konu: 'Sözcükte Anlam', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
+          { konu: 'Paragrafta Anlam', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
+        ],
+      },
+      'Sosyal Bilgiler': {
+        net: 0,
+        dogru: 0,
+        yanlis: 0,
+        bos: 0,
+        konuBazli: [
+          { konu: 'Tarih', toplam: 1, dogru: 0, yanlis: 0, bos: 1 },
+          { konu: 'Coğrafya', toplam: 1, dogru: 0, yanlis: 0, bos: 1 },
+        ],
+      },
+      'Din Kültürü': {
+        net: 0,
+        dogru: 0,
+        yanlis: 0,
+        bos: 0,
+        konuBazli: [
+          { konu: 'İbadetler', toplam: 1, dogru: 0, yanlis: 0, bos: 1 },
+          { konu: 'Peygamberler', toplam: 1, dogru: 0, yanlis: 0, bos: 1 },
+        ],
+      },
+      İngilizce: {
+        net: 0,
+        dogru: 0,
+        yanlis: 0,
+        bos: 0,
+        konuBazli: [
+          { konu: 'Vocabulary', toplam: 1, dogru: 0, yanlis: 0, bos: 1 },
+          { konu: 'Reading', toplam: 1, dogru: 0, yanlis: 0, bos: 1 },
+        ],
+      },
+      Matematik: {
+        net: 1,
+        dogru: 1,
+        yanlis: 0,
+        bos: 0,
+        konuBazli: [
+          { konu: 'Temel İşlemler', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
+        ],
+      },
+      'Fen Bilgisi': {
+        net: 1,
+        dogru: 1,
+        yanlis: 0,
+        bos: 0,
+        konuBazli: [{ konu: 'Madde ve Isı', toplam: 1, dogru: 1, yanlis: 0, bos: 0 }],
+      },
     },
   },
   {

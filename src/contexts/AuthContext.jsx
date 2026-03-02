@@ -26,10 +26,17 @@ export function AuthProvider({ children }) {
     setIsReady(true)
   }, [])
 
-  const login = useCallback((no, password) => {
-    const student = MOCK_STUDENTS.find((s) => s.no === no)
+  /**
+   * Giriş tek bir input ile yapılır: öğrenci TC kimlik numarasını veya okul numarasını girebilir.
+   * Biz de MOCK_STUDENTS içinde tc Veya no eşleşmesine bakarız.
+   */
+  const login = useCallback((identifier) => {
+    const trimmed = (identifier || '').trim()
+    if (!trimmed) return false
+
+    const student = MOCK_STUDENTS.find((s) => s.tc === trimmed || s.no === trimmed)
     if (!student) return false
-    if (password !== '1') return false
+
     setUser(student)
     if (typeof window !== 'undefined') localStorage.setItem(STORAGE_KEY, student.id)
     return true

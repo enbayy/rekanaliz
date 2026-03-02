@@ -1,9 +1,13 @@
-import { Inter } from 'next/font/google'
+import { Roboto } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/Header'
 import { AuthProvider } from '@/contexts/AuthContext'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-geist-sans' })
+const roboto = Roboto({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  weight: ['400', '500', '700'],
+})
 
 export const metadata = {
   title: 'Rekabetçi Denemeleri | Analiz Sistemi',
@@ -13,7 +17,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="tr" className={inter.variable}>
+    <html lang="tr" className={roboto.variable}>
       <body className="min-h-screen bg-dark font-sans">
         <AuthProvider>
           <Header />
