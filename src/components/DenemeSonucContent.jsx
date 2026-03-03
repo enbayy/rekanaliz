@@ -174,40 +174,98 @@ export default function DenemeSonucContent({
       {activeTab === 'siralama' && (
         <section className="rounded-xl border border-dark-lighter bg-dark-light p-4 sm:p-6">
           <h2 className="mb-3 text-base font-semibold text-white sm:mb-4 sm:text-lg">
-            Sıralama Tablosu
+            Öğrenci Sıralama Özeti
           </h2>
           <p className="mb-3 text-xs text-gray-400 sm:mb-4 sm:text-sm">
-            Bu denemede tüm öğrencilerin sıralaması (mevcut öğrenci vurgulu)
+            Bu denemede öğrencinin farklı düzeylerdeki sıralaması ve genel net/cevap dağılımı.
           </p>
-          <div className="-mx-2 overflow-x-auto sm:mx-0">
-            <table className="w-full min-w-[320px] text-left text-xs sm:min-w-[400px] sm:text-sm">
-              <thead>
-                <tr className="border-b border-dark-lighter text-gray-400">
-                  <th className="pb-3 pr-4 font-medium">Sıra</th>
-                  <th className="pb-3 pr-4 font-medium">Ad Soyad</th>
-                  <th className="pb-3 pr-4 font-medium">Net</th>
-                  <th className="pb-3 font-medium">Sınıf</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ranking.map((row) => (
-                  <tr
-                    key={row.studentId}
-                    className={`border-b border-dark-lighter ${
-                      row.studentId === studentId
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-gray-300'
-                    }`}
-                  >
-                    <td className="py-3 pr-4 font-medium">{row.sira}</td>
-                    <td className="py-3 pr-4">{row.adSoyad}</td>
-                    <td className="py-3 pr-4">{row.net}</td>
-                    <td className="py-3">{row.sinif}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            const myRow =
+              Array.isArray(ranking) && ranking.length > 0
+                ? ranking.find((r) => r.studentId === studentId)
+                : null
+
+            return (
+              <div className="space-y-4">
+                <div className="overflow-x-auto rounded-xl border border-dark-lighter bg-dark">
+                  <table className="w-full min-w-[320px] text-left text-xs sm:text-sm">
+                    <thead>
+                      <tr className="border-b border-dark-lighter bg-dark/60 text-gray-400">
+                        <th className="px-3 py-3 font-semibold sm:px-4">Düzey</th>
+                        <th className="px-2 py-3 text-center font-semibold sm:px-3">
+                          Sıralama
+                        </th>
+                        <th className="px-2 py-3 text-left font-semibold sm:px-3">Açıklama</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b border-dark-lighter text-gray-200">
+                        <td className="px-3 py-3 font-medium sm:px-4">Sınıf</td>
+                        <td className="px-2 py-3 text-center sm:px-3">
+                          {myRow?.sinifSira && myRow?.sinifToplam
+                            ? `${myRow.sinifSira} / ${myRow.sinifToplam}`
+                            : '-'}
+                        </td>
+                        <td className="px-2 py-3 text-left text-gray-300 sm:px-3">
+                          {myRow?.sinif ?? 'Sınıf bilgisi'}
+                        </td>
+                      </tr>
+                      <tr className="border-b border-dark-lighter text-gray-200">
+                        <td className="px-3 py-3 font-medium sm:px-4">Kurum</td>
+                        <td className="px-2 py-3 text-center sm:px-3">
+                          {myRow?.kurumSira && myRow?.kurumToplam
+                            ? `${myRow.kurumSira} / ${myRow.kurumToplam}`
+                            : '-'}
+                        </td>
+                        <td className="px-2 py-3 text-left text-gray-300 sm:px-3">
+                          Okul bazında sıralama
+                        </td>
+                      </tr>
+                      <tr className="border-b border-dark-lighter text-gray-200">
+                        <td className="px-3 py-3 font-medium sm:px-4">İlçe</td>
+                        <td className="px-2 py-3 text-center sm:px-3">
+                          {myRow?.ilceSira && myRow?.ilceToplam
+                            ? `${myRow.ilceSira} / ${myRow.ilceToplam}`
+                            : '-'}
+                        </td>
+                        <td className="px-2 py-3 text-left text-gray-300 sm:px-3">İlçe geneli</td>
+                      </tr>
+                      <tr className="text-gray-200">
+                        <td className="px-3 py-3 font-medium sm:px-4">İl</td>
+                        <td className="px-2 py-3 text-center sm:px-3">
+                          {myRow?.ilSira && myRow?.ilToplam
+                            ? `${myRow.ilSira} / ${myRow.ilToplam}`
+                            : '-'}
+                        </td>
+                        <td className="px-2 py-3 text-left text-gray-300 sm:px-3">İl geneli</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-4">
+                  {[
+                    { label: 'Doğru', value: result.dogru, color: 'text-emerald-400' },
+                    { label: 'Yanlış', value: result.yanlis, color: 'text-rose-400' },
+                    { label: 'Boş', value: result.bos, color: 'text-amber-400' },
+                    { label: 'Net', value: result.net, color: 'text-primary' },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      className="rounded-xl border border-dark-lighter bg-dark px-4 py-3 sm:py-4"
+                    >
+                      <p className="text-[11px] font-medium uppercase tracking-wide text-gray-400 sm:text-xs">
+                        {item.label}
+                      </p>
+                      <p className={`mt-1 text-2xl font-bold sm:text-3xl ${item.color}`}>
+                        {item.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
         </section>
       )}
 
