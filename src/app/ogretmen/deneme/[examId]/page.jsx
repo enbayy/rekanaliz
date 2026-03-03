@@ -9,7 +9,7 @@ export default function OgretmenDenemeDetayPage({ params }) {
   const exam = getExam(examId)
   const ranking = getRanking(examId) || []
 
-  const { byClass, schoolRanking } = useMemo(() => {
+  const { byClass, schoolRanking, schoolRankByStudentId } = useMemo(() => {
     const grouped = {}
 
     // Öğrencileri sınıflara göre grupla
@@ -26,7 +26,15 @@ export default function OgretmenDenemeDetayPage({ params }) {
     // Okul genelinde de net'e göre azalan sırala (1. en yüksek net)
     const school = [...ranking].sort((a, b) => (b.net || 0) - (a.net || 0))
 
-    return { byClass: grouped, schoolRanking: school }
+    // Her öğrencinin okul sırasını (okul genel sıralamadaki yeri) map olarak tut
+    const schoolRankMap = {}
+    school.forEach((row, index) => {
+      if (row.studentId != null) {
+        schoolRankMap[row.studentId] = index + 1
+      }
+    })
+
+    return { byClass: grouped, schoolRanking: school, schoolRankByStudentId: schoolRankMap }
   }, [ranking])
 
   if (!exam) {
@@ -109,7 +117,7 @@ export default function OgretmenDenemeDetayPage({ params }) {
                             {row.net.toFixed ? row.net.toFixed(1) : row.net}
                           </span>
                           <span className="text-[0.65rem] text-gray-400">
-                            Okul Sırası: {row.kurumSira}
+                            Okul Sırası: {schoolRankByStudentId[row.studentId] ?? '-'}
                           </span>
                         </div>
                       </div>
@@ -159,9 +167,6 @@ export default function OgretmenDenemeDetayPage({ params }) {
                     <div className="flex flex-col items-end text-[0.7rem] sm:text-xs">
                       <span className="font-semibold text-primary">
                         {row.net.toFixed ? row.net.toFixed(1) : row.net}
-                      </span>
-                      <span className="text-[0.65rem] text-gray-400">
-                        Genel Sıra: {index + 1}
                       </span>
                     </div>
                   </div>
