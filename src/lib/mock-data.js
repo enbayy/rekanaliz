@@ -132,6 +132,7 @@ const GENERATED_QUESTIONS = []
 
 ;(function generateQuestionsForAllDersler() {
   let globalIndex = 1
+  const cevaplar = ['A', 'B', 'C', 'D']
 
   Object.entries(DERS_SORU_SAYILARI).forEach(([ders, adet]) => {
     const konular = LGS_KONULARI[ders] || []
@@ -150,7 +151,7 @@ const GENERATED_QUESTIONS = []
           'D) Şık 4',
           'E) Şık 5',
         ],
-        dogruCevap: 'A',
+        dogruCevap: cevaplar[((globalIndex * 13 + i * 17 + ders.length * 7) % cevaplar.length)],
         ders,
         konu,
       })
@@ -171,43 +172,43 @@ export const MOCK_SCHOOLS = [
 // Burada sadece TC + okul numarasına göre giriş akışını simüle ediyoruz.
 export const MOCK_STUDENTS = [
   {
-    id: '1',
+    id: '1001',
     schoolId: '1',
-    no: '101', // okul numarası
-    tc: '10000000001',
-    adSoyad: 'Ayşe Yılmaz',
+    no: '1001',
+    tc: '10000001001',
+    adSoyad: 'Ahmet Yılmaz',
     sinif: '12-A',
   },
   {
-    id: '2',
+    id: '1002',
     schoolId: '1',
-    no: '205',
-    tc: '10000000002',
+    no: '1002',
+    tc: '10000001002',
+    adSoyad: 'Ayşe Demir',
+    sinif: '12-A',
+  },
+  {
+    id: '1003',
+    schoolId: '1',
+    no: '1003',
+    tc: '10000001003',
     adSoyad: 'Mehmet Kaya',
     sinif: '12-B',
   },
   {
-    id: '3',
+    id: '1004',
     schoolId: '1',
-    no: '312',
-    tc: '10000000003',
-    adSoyad: 'Elif Demir',
+    no: '1004',
+    tc: '10000001004',
+    adSoyad: 'Zeynep Şahin',
     sinif: '12-A',
   },
   {
-    id: '4',
+    id: '1005',
     schoolId: '1',
-    no: '108',
-    tc: '10000000004',
-    adSoyad: 'Zeynep Arslan',
-    sinif: '12-A',
-  },
-  {
-    id: '5',
-    schoolId: '1',
-    no: '210',
-    tc: '10000000005',
-    adSoyad: 'Ali Özkan',
+    no: '1005',
+    tc: '10000001005',
+    adSoyad: 'Ali Çelik',
     sinif: '12-B',
   },
 ]
@@ -238,306 +239,8 @@ export const MOCK_EXAMS = [
 ]
 
 /** Cevaplar: pozisyon (1 tabanlı) -> şık. A kitapçığında 1. soru Q1, 2. soru Q2... */
-export const MOCK_EXAM_RESULTS = [
-  {
-    id: 'r1',
-    studentId: '1',
-    examId: '1',
-    kitapcik: 'A',
-    cevaplar: { 1: 'B', 2: 'C', 3: 'C', 4: 'B', 5: 'A' },
-    // Toplam 90 soru: Türkçe 20, Sosyal 10, Din 10, İngilizce 10, Matematik 20, Fen 20
-    // Bu örnekte: 66 doğru, 18 yanlış, 6 boş → net = 66 - 18/4 = 61.5
-    net: 61.5,
-    dogru: 66,
-    yanlis: 18,
-    bos: 6,
-    dersBazli: {
-      Türkçe: {
-        // 20 soru: 16D 3Y 1B → net = 16 - 3/4 = 15.25
-        net: 15.25,
-        dogru: 16,
-        yanlis: 3,
-        bos: 1,
-        konuBazli: [
-          { konu: 'Sözcükte Anlam', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Cümlede Anlam', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Paragrafta Anlam', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Paragrafta Ana Düşünce', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Paragrafta Yardımcı Düşünce', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Paragrafta Yapı', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Dil Bilgisi', toplam: 1, dogru: 0, yanlis: 0, bos: 1 },
-          { konu: 'Yazım Kuralları', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Noktalama İşaretleri', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Cümlenin Ögeleri', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Fiilimsiler', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Fiiller', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'İsimler', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Sıfatlar', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Zamirler', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Zarflar', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Edat-Bağlaç-Ünlem', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Ses Bilgisi', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Anlatım Bozukluğu', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Metin Türleri', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-        ],
-      },
-      'Sosyal Bilgiler': {
-        // 10 soru: 7D 2Y 1B → net = 7 - 2/4 = 6.5
-        net: 6.5,
-        dogru: 7,
-        yanlis: 2,
-        bos: 1,
-        konuBazli: [
-          { konu: 'Tarih', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Osmanlı Tarihi', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Türkiye Cumhuriyeti Tarihi', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Atatürk İlkeleri', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Coğrafya', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Türkiye Coğrafyası', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'İklim', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Nüfus', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Yerleşme', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Ekonomi', toplam: 1, dogru: 0, yanlis: 0, bos: 1 },
-        ],
-      },
-      'Din Kültürü': {
-        // 10 soru: 8D 1Y 1B → net = 8 - 1/4 = 7.75
-        net: 7.75,
-        dogru: 8,
-        yanlis: 1,
-        bos: 1,
-        konuBazli: [
-          { konu: 'İbadetler', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Namaz', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Oruç', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Zekat', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Hac', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Peygamberler', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Kur\'an-ı Kerim', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'İnanç Esasları', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Ahlak', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'İslam Tarihi', toplam: 1, dogru: 0, yanlis: 0, bos: 1 },
-        ],
-      },
-      İngilizce: {
-        // 10 soru: 6D 3Y 1B → net = 6 - 3/4 = 5.25
-        net: 5.25,
-        dogru: 6,
-        yanlis: 3,
-        bos: 1,
-        konuBazli: [
-          { konu: 'Vocabulary', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Reading', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Grammar', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Tenses', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Modal Verbs', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Conditionals', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Passive Voice', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Relative Clauses', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Phrasal Verbs', toplam: 1, dogru: 0, yanlis: 0, bos: 1 },
-          { konu: 'Writing', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-        ],
-      },
-      Matematik: {
-        // 20 soru: 15D 4Y 1B → net = 15 - 4/4 = 14
-        net: 14,
-        dogru: 15,
-        yanlis: 4,
-        bos: 1,
-        konuBazli: [
-          { konu: 'Temel İşlemler', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Üslü Sayılar', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Köklü Sayılar', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Çarpanlar ve Katlar', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Ondalık Gösterim', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Yüzdeler', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Denklemler', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Eşitsizlikler', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Problemler', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Geometri', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Üçgenler', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Dörtgenler', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Çember ve Daire', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Dönüşüm Geometrisi', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Veri Analizi', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Olasılık', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'İstatistik', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Cebirsel İfadeler', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Fonksiyonlar', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Oran-Orantı', toplam: 1, dogru: 0, yanlis: 0, bos: 1 },
-        ],
-      },
-      'Fen Bilgisi': {
-        // 20 soru: 14D 5Y 1B → net = 14 - 5/4 = 12.75
-        net: 12.75,
-        dogru: 14,
-        yanlis: 5,
-        bos: 1,
-        konuBazli: [
-          { konu: 'Madde ve Isı', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Maddenin Yapısı', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Kuvvet ve Hareket', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Enerji Dönüşümleri', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Elektrik', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Manyetizma', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Canlılar', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Hücre', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Sistemler', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Genetik', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Evrim', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Ekoloji', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Fiziksel Olaylar', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Kimyasal Tepkimeler', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Asitler ve Bazlar', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Basınç', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Ses', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Işık', toplam: 1, dogru: 0, yanlis: 1, bos: 0 },
-          { konu: 'Yer Kabuğu', toplam: 1, dogru: 1, yanlis: 0, bos: 0 },
-          { konu: 'Güneş Sistemi', toplam: 1, dogru: 0, yanlis: 0, bos: 1 },
-        ],
-      },
-    },
-  },
-  {
-    id: 'r2',
-    studentId: '2',
-    examId: '1',
-    kitapcik: 'B',
-    cevaplar: { 1: 'A', 2: 'B', 3: 'C', 4: 'B', 5: 'A' },
-    net: 84,
-    dogru: 3,
-    yanlis: 1,
-    bos: 1,
-    dersBazli: {},
-  },
-  {
-    id: 'r3',
-    studentId: '3',
-    examId: '1',
-    kitapcik: 'A',
-    cevaplar: { 1: 'B', 2: 'C', 3: 'A', 4: 'B', 5: 'A' },
-    net: 82,
-    dogru: 4,
-    yanlis: 1,
-    bos: 0,
-    dersBazli: {},
-  },
-  {
-    id: 'r4',
-    studentId: '4',
-    examId: '1',
-    kitapcik: 'A',
-    cevaplar: { 1: 'B', 2: 'C', 3: 'C', 4: 'B', 5: 'A' },
-    net: 92.5,
-    dogru: 5,
-    yanlis: 0,
-    bos: 0,
-    dersBazli: {},
-  },
-  {
-    id: 'r5',
-    studentId: '5',
-    examId: '1',
-    kitapcik: 'B',
-    cevaplar: { 1: 'A', 2: 'C', 3: 'C', 4: 'B', 5: 'A' },
-    net: 90,
-    dogru: 4,
-    yanlis: 0,
-    bos: 1,
-    dersBazli: {},
-  },
-  {
-    id: 'r6',
-    studentId: '1',
-    examId: '2',
-    kitapcik: 'A',
-    cevaplar: {},
-    net: 0,
-    dogru: 0,
-    yanlis: 0,
-    bos: 5,
-    dersBazli: {},
-  },
-]
+export const MOCK_EXAM_RESULTS = []
 
-/** Deneme 1 sıralaması (net'e göre) */
-export const MOCK_RANKING_EXAM1 = [
-  {
-    sira: 1,
-    studentId: '4',
-    adSoyad: 'Zeynep Arslan',
-    net: 92.5,
-    sinif: '12-A',
-    sinifSira: 1,
-    sinifToplam: 28,
-    kurumSira: 1,
-    kurumToplam: 140,
-    ilceSira: 3,
-    ilceToplam: 620,
-    ilSira: 5,
-    ilToplam: 3100,
-  },
-  {
-    sira: 2,
-    studentId: '5',
-    adSoyad: 'Ali Özkan',
-    net: 90,
-    sinif: '12-B',
-    sinifSira: 2,
-    sinifToplam: 27,
-    kurumSira: 2,
-    kurumToplam: 140,
-    ilceSira: 8,
-    ilceToplam: 620,
-    ilSira: 18,
-    ilToplam: 3100,
-  },
-  {
-    sira: 3,
-    studentId: '1',
-    adSoyad: 'Ayşe Yılmaz',
-    net: 85.5,
-    sinif: '12-A',
-    sinifSira: 5,
-    sinifToplam: 28,
-    kurumSira: 28,
-    kurumToplam: 140,
-    ilceSira: 245,
-    ilceToplam: 620,
-    ilSira: 1011,
-    ilToplam: 3100,
-  },
-  {
-    sira: 4,
-    studentId: '2',
-    adSoyad: 'Mehmet Kaya',
-    net: 84,
-    sinif: '12-B',
-    sinifSira: 4,
-    sinifToplam: 27,
-    kurumSira: 9,
-    kurumToplam: 140,
-    ilceSira: 30,
-    ilceToplam: 620,
-    ilSira: 65,
-    ilToplam: 3100,
-  },
-  {
-    sira: 5,
-    studentId: '3',
-    adSoyad: 'Elif Demir',
-    net: 82,
-    sinif: '12-A',
-    sinifSira: 3,
-    sinifToplam: 24,
-    kurumSira: 14,
-    kurumToplam: 140,
-    ilceSira: 52,
-    ilceToplam: 620,
-    ilSira: 120,
-    ilToplam: 3100,
-  },
-]
 
 /** Deneme 1 soru bazlı istatistik (soru kimliğine göre) */
 export const MOCK_SORU_ISTATISTIK_EXAM1 = [
@@ -592,8 +295,55 @@ export function getQuestionIdAtPosition(exam, kitapcik, position) {
 }
 
 export function getRanking(examId) {
-  if (examId === '1') return MOCK_RANKING_EXAM1
-  return []
+  // MOCK_EXAM_RESULTS'tan dinamik olarak sıralama oluştur
+  const results = MOCK_EXAM_RESULTS.filter((r) => r.examId === examId)
+  
+  // Net'e göre azalan sırala (en yüksek net en üstte)
+  const sortedResults = [...results].sort((a, b) => (b.net || 0) - (a.net || 0))
+  
+  // Sınıflara göre grupla
+  const sinifGruplari = {}
+  sortedResults.forEach((result) => {
+    const student = getStudent(result.studentId)
+    if (student) {
+      const sinif = student.sinif || 'Bilinmeyen'
+      if (!sinifGruplari[sinif]) {
+        sinifGruplari[sinif] = []
+      }
+      sinifGruplari[sinif].push(result)
+    }
+  })
+  
+  // Her sınıf içinde net'e göre sırala
+  Object.keys(sinifGruplari).forEach((sinif) => {
+    sinifGruplari[sinif].sort((a, b) => (b.net || 0) - (a.net || 0))
+  })
+  
+  // Sıralama verilerini oluştur
+  const ranking = sortedResults.map((result, index) => {
+    const student = getStudent(result.studentId)
+    const sinif = student?.sinif || 'Bilinmeyen'
+    const sinifSonuclari = sinifGruplari[sinif] || []
+    const sinifSira = sinifSonuclari.findIndex((r) => r.studentId === result.studentId) + 1
+    
+    return {
+      sira: index + 1,
+      studentId: result.studentId,
+      adSoyad: student?.adSoyad || 'Bilinmeyen',
+      net: result.net || 0,
+      sinif,
+      sinifSira,
+      sinifToplam: sinifSonuclari.length,
+      kurumSira: index + 1,
+      kurumToplam: sortedResults.length,
+      ilceSira: index + 1,
+      ilceToplam: sortedResults.length,
+      ilSira: index + 1,
+      ilToplam: sortedResults.length,
+    }
+  })
+  
+  return ranking
 }
 
 export function getSoruIstatistik(examId) {
@@ -612,3 +362,180 @@ export function getExamsForStudent(studentId) {
     .filter((x) => x !== null)
 }
 
+/**
+ * Optik okuyucudan gelen cevapları öğrenci profiline yerleştirir ve tüm istatistikleri hesaplar.
+ * 
+ * @param {Object} optikVeri - Optik okuyucudan gelen veri
+ * @param {string} optikVeri.studentId - Öğrenci ID'si
+ * @param {string} optikVeri.examId - Deneme ID'si
+ * @param {string} optikVeri.kitapcik - Kitapçık tipi ('A' veya 'B')
+ * @param {Object} optikVeri.cevaplar - Pozisyon (1 tabanlı) -> şık eşlemesi, örn: { 1: 'A', 2: 'B', 3: 'C' }
+ * @returns {Object} Oluşturulan veya güncellenen exam result objesi
+ */
+export function processOptikOkuyucuVerisi({ studentId, examId, kitapcik, cevaplar }) {
+  // Exam bilgisini al
+  const exam = getExam(examId)
+  if (!exam) {
+    throw new Error(`Exam bulunamadı: ${examId}`)
+  }
+
+  // Kitapçık sırasını al
+  const questionOrder = getExamQuestionOrderForBooklet(exam, kitapcik)
+  
+  // Ders bazlı istatistikleri hesapla
+  const dersBazli = {}
+  const dersSoruSayilari = {}
+  
+  // Her soru için kontrol et
+  let toplamDogru = 0
+  let toplamYanlis = 0
+  let toplamBos = 0
+
+  questionOrder.forEach(({ questionId, bookletSira }) => {
+    const soru = getQuestionByQuestionId(questionId)
+    if (!soru) return
+
+    const ders = soru.ders
+    const konu = soru.konu
+    const dogruCevap = soru.dogruCevap
+    const ogrenciCevabi = cevaplar[bookletSira]
+
+    // Ders bazlı başlangıç
+    if (!dersBazli[ders]) {
+      dersBazli[ders] = {
+        dogru: 0,
+        yanlis: 0,
+        bos: 0,
+        konuBazli: {},
+      }
+      dersSoruSayilari[ders] = 0
+    }
+
+    dersSoruSayilari[ders] += 1
+
+    // Konu bazlı başlangıç
+    if (!dersBazli[ders].konuBazli[konu]) {
+      dersBazli[ders].konuBazli[konu] = {
+        konu,
+        toplam: 0,
+        dogru: 0,
+        yanlis: 0,
+        bos: 0,
+      }
+    }
+
+    dersBazli[ders].konuBazli[konu].toplam += 1
+
+    // Cevap kontrolü
+    if (!ogrenciCevabi || ogrenciCevabi.trim() === '') {
+      // Boş
+      toplamBos += 1
+      dersBazli[ders].bos += 1
+      dersBazli[ders].konuBazli[konu].bos += 1
+    } else if (ogrenciCevabi.toUpperCase() === dogruCevap.toUpperCase()) {
+      // Doğru
+      toplamDogru += 1
+      dersBazli[ders].dogru += 1
+      dersBazli[ders].konuBazli[konu].dogru += 1
+    } else {
+      // Yanlış
+      toplamYanlis += 1
+      dersBazli[ders].yanlis += 1
+      dersBazli[ders].konuBazli[konu].yanlis += 1
+    }
+  })
+
+  // Net hesapla: net = doğru - (yanlış / 4)
+  const toplamNet = toplamDogru - toplamYanlis / 4
+
+  // Ders bazlı net hesapla ve konuBazli'yi array'e çevir
+  Object.keys(dersBazli).forEach((ders) => {
+    const d = dersBazli[ders]
+    d.net = d.dogru - d.yanlis / 4
+    // konuBazli objesini array'e çevir
+    d.konuBazli = Object.values(d.konuBazli)
+  })
+
+  // Mevcut result'ı kontrol et
+  const mevcutIndex = MOCK_EXAM_RESULTS.findIndex(
+    (r) => r.studentId === studentId && r.examId === examId
+  )
+
+  const resultObj = {
+    id: mevcutIndex >= 0 ? MOCK_EXAM_RESULTS[mevcutIndex].id : `r${Date.now()}`,
+    studentId,
+    examId,
+    kitapcik,
+    cevaplar,
+    net: toplamNet,
+    dogru: toplamDogru,
+    yanlis: toplamYanlis,
+    bos: toplamBos,
+    dersBazli,
+  }
+
+  // Güncelle veya ekle
+  if (mevcutIndex >= 0) {
+    MOCK_EXAM_RESULTS[mevcutIndex] = resultObj
+  } else {
+    MOCK_EXAM_RESULTS.push(resultObj)
+  }
+  return resultObj
+}
+
+// CSV verilerinden öğrenci cevaplarını parse et ve işle
+;(function processCsvStudentAnswers() {
+  // CSV verileri: OgrenciNo,AdSoyad,S1-S90
+  const csvData = [
+    {
+      ogrenciNo: '1001',
+      adSoyad: 'Ahmet Yılmaz',
+      cevaplar: 'A,C,B,D,A,C,D,B,A,C,D,B,A,C,B,D,A,C,B,D,C,B,A,D,B,A,C,D,B,A,C,A,D,B,C,A,B,D,C,A,A,D,C,B,A,C,D,B,A,C,B,A,D,C,B,A,C,B,D,A,C,B,A,C,D,B,A,C,B,D,A,C,B,A,D,C,B,A,C',
+    },
+    {
+      ogrenciNo: '1002',
+      adSoyad: 'Ayşe Demir',
+      cevaplar: 'B,D,A,C,B,D,A,C,B,D,A,C,B,D,A,C,B,D,A,C,A,C,D,B,A,C,B,D,A,C,D,A,B,C,D,A,B,C,D,A,B,C,D,A,B,C,D,A,B,C,D,A,B,C,D,A,B,C,D,A,B,C,D,A,B,C,D,A,B,C,D,A,B,C,D,A,B,C,D',
+    },
+    {
+      ogrenciNo: '1003',
+      adSoyad: 'Mehmet Kaya',
+      cevaplar: 'C,D,A,B,C,D,A,B,C,D,A,B,C,D,A,B,C,D,A,B,B,A,C,D,B,A,C,D,B,A,C,D,B,A,C,D,B,A,C,D,B,A,C,D,B,A,C,D,B,A,C,D,B,A,C,D,B,A,C,D,B,A,C,D,B,A,C,D,B,A,C,D,B,A,C,D,B',
+    },
+    {
+      ogrenciNo: '1004',
+      adSoyad: 'Zeynep Şahin',
+      cevaplar: 'D,A,C,B,D,A,C,B,D,A,C,B,D,A,C,B,D,A,C,B,D,B,D,A,C,B,D,A,C,B,D,A,C,B,D,A,C,B,D,A,C,B,D,A,C,B,D,A,C,B,D,A,C,B,D,A,C,B,D,A,C,B,D,A,C,B,D,A,C,B,D,A,C,B,D',
+    },
+    {
+      ogrenciNo: '1005',
+      adSoyad: 'Ali Çelik',
+      cevaplar: 'A,B,C,D,A,B,C,D,A,B,C,D,A,B,C,D,A,B,C,D,D,C,B,A,D,C,B,A,D,C,B,A,D,C,B,A,D,C,B,A,D,C,B,A,D,C,B,A,D,C,B,A,D,C,B,A,D,C,B,A,D,C,B,A,D,C,B,A,D,C,B,A,D,C,B,A',
+    },
+  ]
+
+  csvData.forEach((row) => {
+    // Cevapları parse et: S1-S90 -> { 1: 'A', 2: 'C', ... }
+    const cevaplarArray = row.cevaplar.split(',')
+    const cevaplar = {}
+    cevaplarArray.forEach((cevap, index) => {
+      const soruNo = index + 1
+      const temizCevap = cevap.trim().toUpperCase()
+      if (temizCevap && ['A', 'B', 'C', 'D'].includes(temizCevap)) {
+        cevaplar[soruNo] = temizCevap
+      }
+    })
+
+    // processOptikOkuyucuVerisi fonksiyonunu kullanarak net hesapla
+    try {
+      processOptikOkuyucuVerisi({
+        studentId: row.ogrenciNo,
+        examId: '1',
+        kitapcik: 'A',
+        cevaplar,
+      })
+    } catch (error) {
+      console.error(`Öğrenci ${row.ogrenciNo} için hata:`, error)
+    }
+  })
+})()

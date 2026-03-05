@@ -15,9 +15,17 @@ export default function GirisPage() {
   const handleStudentSubmit = (e) => {
     e.preventDefault()
 
-    // Şuanlık: her tıkta direkt giriş (mock veri: 101 numaralı öğrenci)
-    login('101')
-    router.push('/')
+    if (!noOrTc.trim()) {
+      setError('Lütfen öğrenci numaranızı veya TC kimlik numaranızı girin')
+      return
+    }
+
+    const success = login(noOrTc.trim())
+    if (success) {
+      router.push('/')
+    } else {
+      setError('Öğrenci bulunamadı. Lütfen numaranızı kontrol edin.')
+    }
   }
 
   const handleTeacherClick = () => {

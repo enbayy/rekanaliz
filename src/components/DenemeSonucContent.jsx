@@ -12,7 +12,12 @@ import {
   Legend,
   Cell,
 } from 'recharts'
-import { getQuestionByQuestionId, DERS_RENKLERI, LGS_KONULARI } from '@/lib/mock-data'
+import {
+  getQuestionByQuestionId,
+  DERS_RENKLERI,
+  LGS_KONULARI,
+  getExam,
+} from '@/lib/mock-data'
 
 const KITAPCIK_DERSLER = [
   { ad: 'Türkçe', soruSayisi: 20 },
@@ -280,27 +285,47 @@ export default function DenemeSonucContent({
                 return acc
               }, {}) || {}
 
-            // Ders bazlı doğru/yanlış/boş dağılımına göre her dersin soru kutucuklarına durum ata
-            const dersBazliDurum = {}
-            if (result && result.dersBazli) {
-              KITAPCIK_DERSLER.forEach(({ ad, soruSayisi }) => {
-                const d = result.dersBazli[ad]
-                const dogru = Math.min(Number(d?.dogru || 0), soruSayisi)
-                const yanlis = Math.min(Number(d?.yanlis || 0), soruSayisi - dogru)
-                const bos = Math.min(
-                  Number(d?.bos || 0),
-                  soruSayisi - dogru - yanlis
-                )
-
-                const arr = Array(soruSayisi).fill(null)
-                let idx = 0
-                for (let i = 0; i < dogru; i += 1, idx += 1) arr[idx] = 'dogru'
-                for (let i = 0; i < yanlis; i += 1, idx += 1) arr[idx] = 'yanlis'
-                for (let i = 0; i < bos; i += 1, idx += 1) arr[idx] = 'bos'
-
-                dersBazliDurum[ad] = arr
+            // Cevap anahtarını oluştur
+            const getAnswerKey = (examId, kitapcik) => {
+              const exam = getExam(examId)
+              if (!exam) return {}
+              const cevapAnahtari = {}
+              exam.questions.forEach((eq) => {
+                const soru = getQuestionByQuestionId(eq.questionId)
+                if (soru) {
+                  const orderKey = kitapcik === 'A' ? 'orderA' : 'orderB'
+                  cevapAnahtari[eq[orderKey]] = soru.dogruCevap
+                }
               })
+              return cevapAnahtari
             }
+            const cevapAnahtari = getAnswerKey(exam.id, result.kitapcik)
+
+            // Her soru için öğrencinin cevabını kontrol et ve durumunu belirle
+            const soruDurumlari = {} // { ders: { soruIndex: 'dogru'|'yanlis'|'bos' } }
+            
+            KITAPCIK_DERSLER.forEach(({ ad: ders }) => {
+              const sorular = kitapcikSorulariByDers[ders] || []
+              soruDurumlari[ders] = {}
+              
+              sorular.forEach((soru, index) => {
+                if (!soru) {
+                  soruDurumlari[ders][index] = null
+                  return
+                }
+                
+                const ogrenciCevabi = cevaplar[soru.bookletSira]
+                const dogruCevap = cevapAnahtari[soru.bookletSira]
+                
+                if (!ogrenciCevabi || ogrenciCevabi.trim() === '') {
+                  soruDurumlari[ders][index] = 'bos'
+                } else if (ogrenciCevabi.toUpperCase() === dogruCevap?.toUpperCase()) {
+                  soruDurumlari[ders][index] = 'dogru'
+                } else {
+                  soruDurumlari[ders][index] = 'yanlis'
+                }
+              })
+            })
 
             const firstDersWithQuestion = KITAPCIK_DERSLER.find((d) => {
               const dersAd = d.ad
@@ -378,6 +403,16 @@ export default function DenemeSonucContent({
                                   {aktifSoru.metin}
                                 </p>
                               </div>
+                              {cevapAnahtari[aktifSoru.bookletSira] && (
+                                <div className="mt-2 flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-1.5 ring-1 ring-primary/30">
+                                  <span className="text-xs font-semibold text-primary sm:text-sm">
+                                    Cevap:
+                                  </span>
+                                  <span className="text-xs font-bold text-primary sm:text-sm">
+                                    {cevapAnahtari[aktifSoru.bookletSira]}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -472,8 +507,7 @@ export default function DenemeSonucContent({
                               <div className="grid grid-cols-8 gap-1.5 sm:grid-cols-10 sm:gap-2">
                                 {Array.from({ length: soruSayisi }).map((_, index) => {
                                   const soru = sorular[index] || null
-                                  const durumForDers = dersBazliDurum[ders] || []
-                                  const durum = durumForDers[index] || null
+                                  const durum = soruDurumlari[ders]?.[index] || null
 
                                   let bg = 'bg-slate-900/80'
                                   let border = 'border-slate-700'
