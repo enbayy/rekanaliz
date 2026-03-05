@@ -12,7 +12,7 @@ import {
   Legend,
   Cell,
 } from 'recharts'
-import { getQuestionByQuestionId, DERS_RENKLERI } from '@/lib/mock-data'
+import { getQuestionByQuestionId, DERS_RENKLERI, LGS_KONULARI } from '@/lib/mock-data'
 
 const KITAPCIK_DERSLER = [
   { ad: 'Türkçe', soruSayisi: 20 },
@@ -358,6 +358,12 @@ export default function DenemeSonucContent({
                               <span className="font-semibold">
                                 {aktifIndex + 1}. soru
                               </span>
+                              {aktifSoru.konu && (
+                                <>
+                                  <span className="text-gray-400">·</span>
+                                  <span className="text-gray-300">{aktifSoru.konu}</span>
+                                </>
+                              )}
                             </span>
                           </div>
                         </div>
@@ -793,9 +799,61 @@ export default function DenemeSonucContent({
                       let genelToplamYanlis = 0
                       let genelToplamBos = 0
 
+                      // questionOrder'dan soruları ders bazında grupla
+                      const kitapcikSorulariByDers = buildKitapcikSorulariByDers(questionOrder)
+                      const cevaplar = result?.cevaplar || {}
+
                       const rows = Object.entries(result.dersBazli).map(([ders, d]) => {
                         const isExpanded = expandedDers === ders
                         const konuBazli = d.konuBazli || d.konular || []
+                        const lgsKonulari = LGS_KONULARI[ders] || []
+                        
+                        // Bu derse ait soruları al
+                        const dersSorulari = kitapcikSorulariByDers[ders] || []
+                        
+                        // LGS konularına göre konu istatistiklerini oluştur
+                        const konuIstatistikleri = lgsKonulari.map((konuAdi) => {
+                          // Bu konuya ait soruları bul
+                          const konuSorulari = dersSorulari.filter((soru) => soru.konu === konuAdi)
+                          
+                          let toplam = konuSorulari.length
+                          let dogru = 0
+                          let yanlis = 0
+                          let bos = 0
+                          
+                          // Her soru için cevap durumunu kontrol et
+                          konuSorulari.forEach((soru) => {
+                            const soruCevap = cevaplar[soru.bookletSira]
+                            if (soruCevap) {
+                              if (soruCevap === soru.dogruCevap) {
+                                dogru += 1
+                              } else {
+                                yanlis += 1
+                              }
+                            } else {
+                              bos += 1
+                            }
+                          })
+                          
+                          return {
+                            konu: konuAdi,
+                            toplam,
+                            dogru,
+                            yanlis,
+                            bos,
+                          }
+                        })
+                        
+                        // Konu bazlı veri varsa, onu kullan (LGS konularıyla eşleştir)
+                        const gosterilecekKonular = konuBazli.length > 0
+                          ? konuBazli.map((kb) => ({
+                              konu: kb.konu,
+                              toplam: kb.toplam || 0,
+                              dogru: kb.dogru || 0,
+                              yanlis: kb.yanlis || 0,
+                              bos: kb.bos || 0,
+                            }))
+                          : konuIstatistikleri
 
                         // TOPLAM satırı için hesap (varsa konu bazlı veriden, yoksa ders bazlıdan)
                         const toplamFromKonular =
@@ -825,7 +883,8 @@ export default function DenemeSonucContent({
                             ? d.net
                             : toplamDogru - toplamYanlis / 4
 
-                        const isClickable = konuBazli.length > 0
+                        // LGS konuları varsa tıklanabilir
+                        const isClickable = lgsKonulari.length > 0
 
                         // Genel toplamlar
                         genelToplamSoru += Number(toplamSoru) || 0
@@ -851,7 +910,7 @@ export default function DenemeSonucContent({
                               >
                                 <div className="flex items-center gap-2">
                                   <span>{ders}</span>
-                                  {konuBazli.length > 0 && (
+                                  {lgsKonulari.length > 0 && (
                                     <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-dark-lighter/80 text-gray-300">
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -889,9 +948,9 @@ export default function DenemeSonucContent({
                               </td>
                             </tr>
 
-                            {konuBazli && konuBazli.length > 0 && isExpanded && (
+                            {isExpanded && lgsKonulari.length > 0 && (
                               <tr className="border-b border-dark-lighter bg-dark/40 text-gray-300 last:border-0">
-                                <td colSpan={5} className="px-3 pb-4 pt-2 sm:px-4">
+                                <td colSpan={6} className="px-3 pb-4 pt-2 sm:px-4">
                                   <div className="rounded-xl border border-dark-lighter bg-dark/60 p-3 sm:p-4">
                                     <p className="mb-2 text-xs font-semibold text-gray-300 sm:text-sm">
                                       Konu Bazlı İstatistikler - {ders}
@@ -925,7 +984,7 @@ export default function DenemeSonucContent({
                                           </tr>
                                         </thead>
                                         <tbody>
-                                          {konuBazli.map((k) => (
+                                          {gosterilecekKonular.map((k) => (
                                             <tr
                                               key={k.konu}
                                               className="border-b border-dark-lighter text-gray-300 last:border-0"
@@ -1042,186 +1101,156 @@ export default function DenemeSonucContent({
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    {
-                      konu: 'Paragrafta Yardımcı Düşünce',
-                      toplam: 9,
-                      dogru: 0,
-                      yanlis: 0,
-                      bos: 9,
-                      hataYuzde: 0.0,
-                      starred: true,
-                    },
-                    {
-                      konu: 'Paragrafta Yapı',
-                      toplam: 6,
-                      dogru: 0,
-                      yanlis: 0,
-                      bos: 6,
-                      hataYuzde: 0.0,
-                      starred: true,
-                    },
-                    {
-                      konu: 'Paragrafta Ana Düşünce',
-                      toplam: 6,
-                      dogru: 0,
-                      yanlis: 0,
-                      bos: 6,
-                      hataYuzde: 0.0,
-                      starred: true,
-                    },
-                    {
-                      konu: 'Paragrafta Anlam',
-                      toplam: 4,
-                      dogru: 0,
-                      yanlis: 1,
-                      bos: 3,
-                      hataYuzde: 25.0,
-                      starred: false,
-                    },
-                    {
-                      konu: 'Sözcükte Anlam',
-                      toplam: 3,
-                      dogru: 0,
-                      yanlis: 3,
-                      bos: 0,
-                      hataYuzde: 100.0,
-                      starred: false,
-                    },
-                    {
-                      konu: 'Cümlede Anlam',
-                      toplam: 2,
-                      dogru: 0,
-                      yanlis: 0,
-                      bos: 2,
-                      hataYuzde: 0.0,
-                      starred: false,
-                    },
-                    {
-                      konu: 'Yazım Kuralları',
-                      toplam: 2,
-                      dogru: 0,
-                      yanlis: 0,
-                      bos: 2,
-                      hataYuzde: 0.0,
-                      starred: false,
-                    },
-                    {
-                      konu: 'Noktalama İşaretleri',
-                      toplam: 2,
-                      dogru: 0,
-                      yanlis: 0,
-                      bos: 2,
-                      hataYuzde: 0.0,
-                      starred: false,
-                    },
-                    {
-                      konu: 'Cümlenin Ögeleri',
-                      toplam: 1,
-                      dogru: 0,
-                      yanlis: 0,
-                      bos: 1,
-                      hataYuzde: 0.0,
-                      starred: false,
-                    },
-                    {
-                      konu: 'Fiilimsiler',
-                      toplam: 1,
-                      dogru: 0,
-                      yanlis: 0,
-                      bos: 1,
-                      hataYuzde: 0.0,
-                      starred: false,
-                    },
-                  ].map((row, index) => {
-                    const severityColor =
-                      row.hataYuzde >= 75
-                        ? 'from-rose-500/80 via-amber-400/80 to-amber-300/80'
-                        : row.hataYuzde >= 25
-                        ? 'from-amber-400/80 via-emerald-400/80 to-emerald-300/80'
-                        : 'from-emerald-400/80 via-sky-400/80 to-sky-300/80'
+                  {(() => {
+                    // Tüm derslerden konu bazlı verileri topla
+                    const tumKonular = []
+                    
+                    if (result.dersBazli) {
+                      Object.entries(result.dersBazli).forEach(([ders, d]) => {
+                        const konuBazli = d.konuBazli || d.konular || []
+                        konuBazli.forEach((k) => {
+                          const toplam = Number(k.toplam) || 0
+                          const dogru = Number(k.dogru) || 0
+                          const yanlis = Number(k.yanlis) || 0
+                          const bos = Number(k.bos) || 0
+                          const hataToplam = yanlis + bos
+                          const hataYuzde = toplam > 0 ? (hataToplam / toplam) * 100 : 0
+                          
+                          // Sadece hata olan konuları ekle (yanlış veya boş varsa)
+                          if (toplam > 0 && hataToplam > 0) {
+                            tumKonular.push({
+                              konu: k.konu,
+                              toplam,
+                              dogru,
+                              yanlis,
+                              bos,
+                              hataYuzde,
+                              ders,
+                            })
+                          }
+                        })
+                      })
+                    }
+                    
+                    // Hata yüzdesine göre sırala (yüksekten düşüğe)
+                    tumKonular.sort((a, b) => {
+                      // Önce hata yüzdesine göre
+                      if (b.hataYuzde !== a.hataYuzde) {
+                        return b.hataYuzde - a.hataYuzde
+                      }
+                      // Sonra toplam hataya göre (yanlış + boş)
+                      const hataA = a.yanlis + a.bos
+                      const hataB = b.yanlis + b.bos
+                      if (hataB !== hataA) {
+                        return hataB - hataA
+                      }
+                      // Son olarak toplam soru sayısına göre
+                      return b.toplam - a.toplam
+                    })
+                    
+                    // En çok hata yapılan 10 konuyu göster
+                    const gosterilecekKonular = tumKonular.slice(0, 10)
+                    
+                    return gosterilecekKonular.length > 0 ? (
+                      gosterilecekKonular.map((row, index) => {
+                        // İlk 3 konuya starred ekle (en yüksek hata yüzdesine sahip olanlar)
+                        const starred = index < 3 && row.hataYuzde >= 50
+                        const severityColor =
+                          row.hataYuzde >= 75
+                            ? 'from-rose-500/80 via-amber-400/80 to-amber-300/80'
+                            : row.hataYuzde >= 25
+                            ? 'from-amber-400/80 via-emerald-400/80 to-emerald-300/80'
+                            : 'from-emerald-400/80 via-sky-400/80 to-sky-300/80'
 
-                    const severityBorder =
-                      row.hataYuzde >= 75
-                        ? 'border-l-4 border-l-rose-500/80'
-                        : row.hataYuzde >= 25
-                        ? 'border-l-4 border-l-amber-400/80'
-                        : 'border-l-4 border-l-emerald-400/70'
+                        const severityBorder =
+                          row.hataYuzde >= 75
+                            ? 'border-l-4 border-l-rose-500/80'
+                            : row.hataYuzde >= 25
+                            ? 'border-l-4 border-l-amber-400/80'
+                            : 'border-l-4 border-l-emerald-400/70'
 
-                    const medalBg =
-                      index === 0
-                        ? 'bg-gradient-to-br from-amber-300 to-amber-500 text-slate-900'
-                        : index === 1
-                        ? 'bg-gradient-to-br from-gray-200 to-slate-300 text-slate-900'
-                        : index === 2
-                        ? 'bg-gradient-to-br from-orange-300 to-orange-500 text-slate-900'
-                        : 'bg-dark-lighter text-gray-200'
+                        const medalBg =
+                          index === 0
+                            ? 'bg-gradient-to-br from-amber-300 to-amber-500 text-slate-900'
+                            : index === 1
+                            ? 'bg-gradient-to-br from-gray-200 to-slate-300 text-slate-900'
+                            : index === 2
+                            ? 'bg-gradient-to-br from-orange-300 to-orange-500 text-slate-900'
+                            : 'bg-dark-lighter text-gray-200'
 
-                    return (
-                      <tr
-                        key={row.konu}
-                        className={`border-b border-dark-lighter/70 text-gray-200 last:border-0 transition-colors ${severityBorder} ${
-                          index % 2 === 0 ? 'bg-slate-950/40' : 'bg-slate-900/40'
-                        } hover:bg-slate-800/60`}
-                      >
-                        <td className="px-4 py-3 font-medium text-white">
-                          <span className="flex items-center gap-2">
-                            <span className="flex h-7 min-w-0 items-center gap-2">
-                              <span
-                                className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold ring-1 ring-dark-lighter/80 shadow-sm ${medalBg}`}
-                              >
-                                {index + 1}
-                              </span>
-                              <span className="flex flex-col">
-                                <span className="truncate">{row.konu}</span>
-                                <span className="mt-0.5 text-[10px] font-normal uppercase tracking-wide text-gray-500">
-                                  {row.hataYuzde >= 75
-                                    ? 'Kritik odak alanı'
-                                    : row.hataYuzde >= 25
-                                    ? 'Öncelikli geliştirme alanı'
-                                    : 'Destekleyici tekrar alanı'}
+                        return (
+                          <tr
+                            key={row.konu}
+                            className={`border-b border-dark-lighter/70 text-gray-200 last:border-0 transition-colors ${severityBorder} ${
+                              index % 2 === 0 ? 'bg-slate-950/40' : 'bg-slate-900/40'
+                            } hover:bg-slate-800/60`}
+                          >
+                            <td className="px-4 py-3 font-medium text-white">
+                              <span className="flex items-center gap-2">
+                                <span className="flex h-7 min-w-0 items-center gap-2">
+                                  <span
+                                    className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold ring-1 ring-dark-lighter/80 shadow-sm ${medalBg}`}
+                                  >
+                                    {index + 1}
+                                  </span>
+                                  <span className="flex flex-col">
+                                    <span className="truncate">{row.konu}</span>
+                                    <span className="mt-0.5 text-[10px] font-normal uppercase tracking-wide text-gray-500">
+                                      {row.hataYuzde >= 75
+                                        ? 'Kritik odak alanı'
+                                        : row.hataYuzde >= 25
+                                        ? 'Öncelikli geliştirme alanı'
+                                        : 'Destekleyici tekrar alanı'}
+                                    </span>
+                                  </span>
                                 </span>
+                                {starred && (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary ring-1 ring-primary/40">
+                                    <span>⭐</span>
+                                    <span>Öncelikli</span>
+                                  </span>
+                                )}
                               </span>
-                            </span>
-                            {row.starred && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary ring-1 ring-primary/40">
-                                <span>⭐</span>
-                                <span>Öncelikli</span>
-                              </span>
-                            )}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-center text-gray-100">{row.toplam}</td>
-                        <td className="px-4 py-3 text-center text-emerald-400">
-                          {row.dogru}
-                        </td>
-                        <td className="px-4 py-3 text-center text-rose-400">{row.yanlis}</td>
-                        <td className="px-4 py-3 text-center text-amber-400">{row.bos}</td>
-                        <td className="px-4 py-3 text-center">
-                          <div className="flex flex-col items-center gap-1">
-                            <div className="flex items-center gap-1.5">
-                              <span className="inline-flex h-2.5 w-16 overflow-hidden rounded-full bg-slate-800/90 ring-1 ring-slate-700/80">
-                                <span
-                                  className={`block h-full bg-gradient-to-r ${severityColor}`}
-                                  style={{ width: `${Math.min(row.hataYuzde, 100)}%` }}
-                                />
-                              </span>
-                              <span className="text-[11px] font-semibold text-primary">
-                                %{row.hataYuzde.toFixed(1)}
-                              </span>
-                            </div>
-                            <span className="text-[10px] uppercase tracking-wide text-gray-500">
-                              {row.hataYuzde >= 75
-                                ? 'Kritik'
-                                : row.hataYuzde >= 25
-                                ? 'Orta'
-                                : 'Düşük'}
-                            </span>
-                          </div>
+                            </td>
+                            <td className="px-4 py-3 text-center text-gray-100">{row.toplam}</td>
+                            <td className="px-4 py-3 text-center text-emerald-400">
+                              {row.dogru}
+                            </td>
+                            <td className="px-4 py-3 text-center text-rose-400">{row.yanlis}</td>
+                            <td className="px-4 py-3 text-center text-amber-400">{row.bos}</td>
+                            <td className="px-4 py-3 text-center">
+                              <div className="flex flex-col items-center gap-1">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="inline-flex h-2.5 w-16 overflow-hidden rounded-full bg-slate-800/90 ring-1 ring-slate-700/80">
+                                    <span
+                                      className={`block h-full bg-gradient-to-r ${severityColor}`}
+                                      style={{ width: `${Math.min(row.hataYuzde, 100)}%` }}
+                                    />
+                                  </span>
+                                  <span className="text-[11px] font-semibold text-primary">
+                                    %{row.hataYuzde.toFixed(1)}
+                                  </span>
+                                </div>
+                                <span className="text-[10px] uppercase tracking-wide text-gray-500">
+                                  {row.hataYuzde >= 75
+                                    ? 'Kritik'
+                                    : row.hataYuzde >= 25
+                                    ? 'Orta'
+                                    : 'Düşük'}
+                                </span>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                          <p className="text-sm">Henüz hata yapılan konu bulunmamaktadır.</p>
                         </td>
                       </tr>
                     )
-                  })}
+                  })()}
                 </tbody>
               </table>
             </div>
